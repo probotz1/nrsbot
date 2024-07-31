@@ -14,7 +14,9 @@ class Database:
             _id=int(id),                                   
             file_id=None,
             caption=None,
-            format_template=None  # Add this line for the format template
+            format_template=None,
+            metadata=False,
+            metadata_code=""" -map 0 -c:s copy -c:a copy -c:v copy -metadata title="Encoded By :- @Atx_bots" -metadata author="@naruto" -metadata:s:s title="Subtitled By :- @Atx_bots" -metadata:s:a title="By :- @Atx_bots" -metadata:s:v title="Encoded By :- @Atx_bots" """
         )
 
     async def add_user(self, b, m):
@@ -66,6 +68,27 @@ class Database:
     async def get_media_preference(self, id):
         user = await self.col.find_one({'_id': int(id)})
         return user.get('media_type', None)
+
+    
+    #======================= Metadata ========================#
+        
+    async def set_metadata(self, id, bool_meta):
+        await self.col.update_one({'_id': int(id)}, {'$set': {'metadata': bool_meta}})
+        
+    async def get_metadata(self, id):
+        user = await self.col.find_one({'_id': int(id)})
+        return user.get('metadata', None)
+        
+        
+        
+    #======================= Metadata Code ========================#    
+        
+    async def set_metadata_code(self, id, metadata_code):
+        await self.col.update_one({'_id': int(id)}, {'$set': {'metadata_code': metadata_code}})
+
+    async def get_metadata_code(self, id):
+        user = await self.col.find_one({'_id': int(id)})
+        return user.get('metadata_code', None)   
 
 
 AshutoshGoswami24 = Database(Config.DB_URL, Config.DB_NAME)
