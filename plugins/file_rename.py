@@ -7,7 +7,7 @@ from hachoir.metadata import extractMetadata
 from hachoir.parser import createParser
 from helper.utils import progress_for_pyrogram, humanbytes, convert
 from helper.database import AshutoshGoswami24
-from config import Config
+from config import Config, Txt
 import os
 import asyncio
 import time
