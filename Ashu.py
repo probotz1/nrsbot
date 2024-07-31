@@ -9,7 +9,7 @@ from pyrogram.raw.all import layer
 from config import Config
 from aiohttp import web
 from route import web_server
- 
+import pyromod 
 class Bot(Client):
 
     def __init__(self):
@@ -46,12 +46,6 @@ class Bot(Client):
             except:
                 print("Please Make This Is Admin In Your Log Channel")
                 
-# Print the configuration to verify
-
-print(f"""          
-      # -- https://t.me/AshutoshGoswami24 -- #
-# -- https://github.com/AshutoshGoswami24/Auto-Rename-Bot -- #
-""")
 
 Bot().run()
 
