@@ -215,11 +215,11 @@ async def auto_rename_files(client, message):
             del renaming_operations[file_id]
             return await download_msg.edit(e)  
 
-        _bool_metadata = await AshutoshGoswami24.get_metadata(update.message.chat.id)  
+        _bool_metadata = await AshutoshGoswami24.get_metadata(message.chat.id)  
     
         if (_bool_metadata):
             metadata_path = f"Metadata/{new_filename}"
-            metadata = await AshutoshGoswami24.get_metadata_code(update.message.chat.id)
+            metadata = await AshutoshGoswami24.get_metadata_code(message.chat.id)
             if metadata:
 
                 await download_msg.edit("I Found Your Metadata🔥\n\n__Please Wait...__\n`Adding Metadata ⚡...`")
