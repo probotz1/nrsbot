@@ -218,7 +218,7 @@ async def auto_rename_files(client, message):
         _bool_metadata = await AshutoshGoswami24.get_metadata(message.chat.id)  
     
         if (_bool_metadata):
-            metadata_path = f"Metadata/{new_filename}"
+            metadata_path = f"Metadata/{new_file_name}"
             metadata = await AshutoshGoswami24.get_metadata_code(message.chat.id)
             if metadata:
 
