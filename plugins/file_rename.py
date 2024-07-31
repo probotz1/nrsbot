@@ -197,8 +197,11 @@ async def auto_rename_files(client, message):
                     del renaming_operations[file_id]
                     return  # Exit the handler if quality extraction fails
                 
-                format_template = format_template.replace(quality_placeholder, "".join(extracted_qualities))           
-            
+                format_template = format_template.replace(quality_placeholder, "".join(extracted_qualities))   
+                
+        if not os.path.isdir("Metadata"):
+        os.mkdir("Metadata")
+        
         _, file_extension = os.path.splitext(file_name)
         new_file_name = f"{format_template}{file_extension}"
         file_path = f"downloads/{new_file_name}"
@@ -210,7 +213,33 @@ async def auto_rename_files(client, message):
         except Exception as e:
             # Mark the file as ignored
             del renaming_operations[file_id]
-            return await download_msg.edit(e)     
+            return await download_msg.edit(e)  
+
+        _bool_metadata = await db.get_metadata(update.message.chat.id)  
+    
+        if (_bool_metadata):
+            metadata_path = f"Metadata/{new_filename}"
+            metadata = await db.get_metadata_code(update.message.chat.id)
+            if metadata:
+
+                await ms.edit("I Found Your Metadata🔥\n\n__Please Wait...__\n`Adding Metadata ⚡...`")
+                cmd = f"""ffmpeg -i "{path}" {metadata} "{metadata_path}" """
+
+                process = await asyncio.create_subprocess_shell(
+                    cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+                )
+
+                stdout, stderr = await process.communicate()
+                er = stderr.decode()
+
+                try:
+                    if er:
+                        return await ms.edit(str(er) + "\n\n**Error**")
+                except BaseException:
+                    pass
+            await ms.edit("**Metadata Added To The File Successfully ✅**\n\n__**Please Wait...**__\n\n`😈Trying To Downloading`")
+        else:
+            await ms.edit("`😈Trying To Downloading`") 
 
         duration = 0
         try:
