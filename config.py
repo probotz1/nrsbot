@@ -61,6 +61,13 @@ Use These Keywords To Setup Custom File Name
 <b>🧑‍💻 Developer :</b> <a href='https://t.me/PandaWep'>PandaWep</a>
     
 <b>♻️ Bot Made By :</b> @PandaWep"""
+    SEND_METADATA = """
+❪ SET CUSTOM METADATA ❫
+
+☞ Fᴏʀ Exᴀᴍᴘʟᴇ:-
+
+◦ <code> -map 0 -c:s copy -c:a copy -c:v copy -metadata title="Powered By:- @Anime_Warrior_Tamil" -metadata author="@Anime_Warrior_Tamil" -metadata:s:s title="Subtitled By :- @Anime_Warrior_Tamil" -metadata:s:a title="By :- @Anime_Warrior_Tamil" -metadata:s:v title="By:- @Anime_Warrior_Tamil" </code>"""
+
 
     
     THUMBNAIL_TXT = """<b><u>🖼️  HOW TO SET THUMBNAIL</u></b>
