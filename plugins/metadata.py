@@ -1,6 +1,6 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
-from helper.database import db
+from helper.database import AshutoshGoswami24
 from pyromod.exceptions import ListenerTimeout
 from config import Txt
 
@@ -17,8 +17,8 @@ OFF = [[InlineKeyboardButton('Metadata Off ❌', callback_data='metadata_0')], [
 async def handle_metadata(bot: Client, message: Message):
 
     ms = await message.reply_text("**Please Wait...**", reply_to_message_id=message.id)
-    bool_metadata = await db.get_metadata(message.from_user.id)
-    user_metadata = await db.get_metadata_code(message.from_user.id)
+    bool_metadata = await AshutoshGoswami24.get_metadata(message.from_user.id)
+    user_metadata = await AshutoshGoswami24.get_metadata_code(message.from_user.id)
     await ms.delete()
     if bool_metadata:
         return await message.reply_text(f"**Your Current Metadata :-**\n\n➜ `{user_metadata}` ",quote=True, reply_markup=InlineKeyboardMarkup(ON))
@@ -32,14 +32,14 @@ async def query_metadata(bot: Client, query: CallbackQuery):
 
     if data.startswith('metadata_'):
         _bool = data.split('_')[1]
-        user_metadata = await db.get_metadata_code(query.from_user.id)
+        user_metadata = await AshutoshGoswami24.get_metadata_code(query.from_user.id)
 
         if bool(eval(_bool)):
-            await db.set_metadata(query.from_user.id, bool_meta=False)
+            await AshutoshGoswami24.set_metadata(query.from_user.id, bool_meta=False)
             await query.message.edit(f"**Your Current Metadata :-**\n\n➜ `{user_metadata}` ", reply_markup=InlineKeyboardMarkup(OFF))
 
         else:
-            await db.set_metadata(query.from_user.id, bool_meta=True)
+            await AshutoshGoswami24.set_metadata(query.from_user.id, bool_meta=True)
             await query.message.edit(f"**Your Current Metadata :-**\n\n➜ `{user_metadata}` ", reply_markup=InlineKeyboardMarkup(ON))
 
     elif data == 'cutom_metadata':
@@ -53,7 +53,7 @@ async def query_metadata(bot: Client, query: CallbackQuery):
             print(metadata.text)
             ms = await query.message.reply_text("**Please Wait...**", reply_to_message_id=metadata.id)
             reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton('✖️ Close ✖️', callback_data='close')]])
-            await db.set_metadata_code(query.from_user.id, metadata_code=metadata.text)
+            await AshutoshGoswami24.set_metadata_code(query.from_user.id, metadata_code=metadata.text)
             await ms.edit("**Your Metadata Code Set Successfully ✅**", reply_markup=reply_markup)
         except Exception as e:
             print(e)
