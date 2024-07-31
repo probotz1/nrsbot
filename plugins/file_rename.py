@@ -275,7 +275,6 @@ async def auto_rename_files(client, message):
                 await client.send_document(
                     message.chat.id,
                     document=metadata_path if _bool_metadata else file_path,
-                    document=file_path,
                     thumb=ph_path,
                     caption=caption,
                     progress=progress_for_pyrogram,
@@ -284,8 +283,7 @@ async def auto_rename_files(client, message):
             elif type == "video":
                 await client.send_video(
                     message.chat.id,
-                    document=metadata_path if _bool_metadata else file_path,
-                    video=file_path,
+                    video=metadata_path if _bool_metadata else file_path,
                     caption=caption,
                     thumb=ph_path,
                     duration=duration,
@@ -295,8 +293,7 @@ async def auto_rename_files(client, message):
             elif type == "audio":
                 await client.send_audio(
                     message.chat.id,
-                    document=metadata_path if _bool_metadata else file_path,
-                    audio=file_path,
+                    audio=metadata_path if _bool_metadata else file_path,
                     caption=caption,
                     thumb=ph_path,
                     duration=duration,
