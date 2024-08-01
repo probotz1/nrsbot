@@ -270,7 +270,6 @@ async def auto_rename_files(client, message):
             img.save(ph_path, "JPEG")    
         
         upload_msg = await download_msg.edit("Trying To Uploading.....")
-        type = message.data.split("_")[1]
         try:
             type = media_type  # Use 'media_type' variable instead
             if type == "document":
