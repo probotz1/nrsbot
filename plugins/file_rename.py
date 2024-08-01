@@ -4,7 +4,6 @@ from pyrogram.types import InputMediaDocument, Message
 from PIL import Image
 from datetime import datetime
 from hachoir.metadata import extractMetadata
-from helper.ffmpeg import fix_thumb
 from hachoir.parser import createParser
 from helper.utils import progress_for_pyrogram, humanbytes, convert
 from helper.database import AshutoshGoswami24
@@ -209,122 +208,118 @@ async def auto_rename_files(client, message):
         file_path = f"downloads/{new_file_name}"
         file = message
 
-        ms = await message.reply_text("`Trying To Downloading⚡`")    
-    try:
-     	path = await client.download_media(message=file, file_name=file_path, progress=progress_for_pyrogram,progress_args=("`Download Started✨....`", ms, time.time()))                    
-    except Exception as e:
-     	return await ms.edit(e)
-     	     
+        download_msg = await message.reply_text(text="Trying To Download.....")
+        try:
+            path = await client.download_media(message=file, file_name=file_path, progress=progress_for_pyrogram, progress_args=("Download Started....", download_msg, time.time()))
+        except Exception as e:
+            # Mark the file as ignored
+            del renaming_operations[file_id]
+            return await download_msg.edit(e)  
 
-    # Metadata Adding Code
-    _bool_metadata = await AshutoshGoswami24.get_metadata(message.chat.id)  
+        _bool_metadata = await AshutoshGoswami24.get_metadata(message.chat.id)  
     
-    if (_bool_metadata):
-        metadata_path = f"Metadata/{new_file_name}"
-        metadata = await AshutoshGoswami24.get_metadata_code(message.chat.id)
-        if metadata:
+        if (_bool_metadata):
+            metadata_path = f"Metadata/{new_file_name}"
+            metadata = await AshutoshGoswami24.get_metadata_code(message.chat.id)
+            if metadata:
 
-            await ms.edit("I Found Your Metadata🔥\n\n__Please Wait...__\n`Adding Metadata ⚡...`")
-            cmd = f"""ffmpeg -i "{path}" {metadata} "{metadata_path}" """
+                await download_msg.edit("I Found Your Metadata🔥\n\n__Please Wait...__\n`Adding Metadata ⚡...`")
+                cmd = f"""ffmpeg -i "{path}" {metadata} "{metadata_path}" """
 
-            process = await asyncio.create_subprocess_shell(
-                cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-            )
+                process = await asyncio.create_subprocess_shell(
+                    cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+                )
 
-            stdout, stderr = await process.communicate()
-            er = stderr.decode()
+                stdout, stderr = await process.communicate()
+                er = stderr.decode()
 
-            try:
-                if er:
-                    return await ms.edit(str(er) + "\n\n**Error**")
-            except BaseException:
-                pass
-        await ms.edit("**Metadata Added To The File Successfully ✅**\n\n__**Please Wait...**__\n\n`😈Trying To Downloading`")
-    else:
-        await ms.edit("`😈Trying To Downloading`") 
+                try:
+                    if er:
+                        return await download_msg.edit(str(er) + "\n\n**Error**")
+                except BaseException:
+                    pass
+            await download_msg.edit("**Metadata Added To The File Successfully ✅**\n\n__**Please Wait...**__\n\n`😈Trying To Downloading`")
+        else:
+            await download_msg.edit("`😈Trying To Downloading`") 
 
-    duration = 0
-    try:
-        parser = createParser(file_path)
-        metadata = extractMetadata(parser)
-        if metadata.has("duration"):
-           duration = metadata.get('duration').seconds
-        parser.close()   
-    except:
-        pass
+        duration = 0
+        try:
+            parser = createParser(file_path)
+            metadata = extractMetadata(parser)
+            if metadata.has("duration"):
+               duration = metadata.get('duration').seconds
+            parser.close()   
+        except:
+            pass
+        upload_msg = await download_msg.edit("Trying To Uploading⚡.....")
+        c_caption = await AshutoshGoswami24.get_caption(message.chat.id)
+        c_thumb = await AshutoshGoswami24.get_thumbnail(message.chat.id)
+
+        caption = c_caption.format(filename=new_file_name, filesize=humanbytes(message.document.file_size), duration=convert(duration)) if c_caption else f"**{new_file_name}**"
+
+        if c_thumb:
+            ph_path = await client.download_media(c_thumb)
+            print(f"Thumbnail downloaded successfully. Path: {ph_path}")
+        elif media_type == "video" and message.video.thumbs:
+            ph_path = await client.download_media(message.video.thumbs[0].file_id)
+
+        if ph_path:
+            Image.open(ph_path).convert("RGB").save(ph_path)
+            img = Image.open(ph_path)
+            img.resize((320, 320))
+            img.save(ph_path, "JPEG")    
         
-    ph_path = None
-    user_id = int(message.chat.id) 
-    media = getattr(file, file.media.value)
-    c_caption = await AshutoshGoswami24.get_caption(message.chat.id)
-    c_thumb = await AshutoshGoswami24.get_thumbnail(message.chat.id)
+        try:
+            type = media_type  # Use 'media_type' variable instead
+            if type == "document":
+                await client.send_document(
+                    message.chat.id,
+                    document=metadata_path if _bool_metadata else file_path,
+                    thumb=ph_path,
+                    caption=caption,
+                    progress=progress_for_pyrogram,
+                    progress_args=("Upload Started.....", upload_msg, time.time())
+                )
+            elif type == "video":
+                await client.send_video(
+                    message.chat.id,
+                    video=metadata_path if _bool_metadata else file_path,
+                    caption=caption,
+                    thumb=ph_path,
+                    duration=duration,
+                    progress=progress_for_pyrogram,
+                    progress_args=("Upload Started.....", upload_msg, time.time())
+                )
+            elif type == "audio":
+                await client.send_audio(
+                    message.chat.id,
+                    audio=metadata_path if _bool_metadata else file_path,
+                    caption=caption,
+                    thumb=ph_path,
+                    duration=duration,
+                    progress=progress_for_pyrogram,
+                    progress_args=("Upload Started.....", upload_msg, time.time())
+                )
+        except Exception as e:
+            os.remove(file_path)
+            if ph_path:
+                os.remove(ph_path)
+            if metadata_path:
+                os.remove(metadata_path)
+            return await upload_msg.edit(f"Error: {e}")
 
-    if c_caption:
-         try:
-             caption = c_caption.format(filename=new_file_name, filesize=humanbytes(media.file_size), duration=convert(duration))
-         except Exception as e:
-             return await ms.reply_text(text=f"Your Caption Error Except Keyword Argument: ({e})")             
-    else:
-         caption = f"**{new_file_name}**"
- 
-    if (media.thumbs or c_thumb):
-         if c_thumb:
-             ph_path = await client.download_media(c_thumb)
-             width, height, ph_path = await fix_thumb(ph_path)
-         else:
-             try:
-                 ph_path_ = await take_screen_shot(file_path, os.path.dirname(os.path.abspath(file_path)), random.randint(0, duration - 1))
-                 width, height, ph_path = await fix_thumb(ph_path_)
-             except Exception as e:
-                 ph_path = None
-                 print(e)  
-
-
-    await ms.edit("`Trying To Uploading💯`")
-    try:
-        if type == "document":
-            await client.send_document(
-                update.message.chat.id,
-                document=metadata_path if _bool_metadata else file_path,
-                thumb=ph_path, 
-                caption=caption, 
-                progress=progress_for_pyrogram,
-                progress_args=("`Upload Started❤️‍🔥....`", ms, time.time()))
-
-        elif type == "video": 
-            await bot.send_video(
-                update.message.chat.id,
-                video=metadata_path if _bool_metadata else file_path,
-                caption=caption,
-                thumb=ph_path,
-                duration=duration,
-                progress=progress_for_pyrogram,
-                progress_args=("`Upload Starte❤️‍🔥d....`", ms, time.time()))
-
-        elif type == "audio": 
-            await bot.send_audio(
-                update.message.chat.id,
-                audio=metadata_path if _bool_metadata else file_path,
-                caption=caption,
-                thumb=ph_path,
-                duration=duration,
-                progress=progress_for_pyrogram,
-                progress_args=("`Upload Started❤️‍🔥....`", ms, time.time()))
-
-
-    except Exception as e:          
-        os.remove(file_path)
+        await download_msg.delete() 
         if ph_path:
             os.remove(ph_path)
+        if file_path:
+            os.remove(file_path)
         if metadata_path:
             os.remove(metadata_path)
-        if path:
-            os.remove(path)
-        return await ms.edit(f"**Error :** `{e}`")    
 
-    if ph_path:
-        os.remove(ph_path)
-    if file_path:
-        os.remove(file_path)
-    if metadata_path:
-        os.remove(metadata_path)            
+
+
+
+# PandaWep
+# Don't Remove Credit 🥺
+# Telegram Channel @PandaWep
+# Developer https://github.com/PandaWep
