@@ -281,7 +281,7 @@ async def auto_rename_files(client, message):
 
 
     await ms.edit("`Trying To Uploading💯`")
-    type = message.data.split("_")[1]
+    type = update.data.split("_")[1]
     try:
         if type == "document":
             await client.send_document(
