@@ -224,7 +224,7 @@ async def auto_rename_files(client, message):
         metadata = await AshutoshGoswami24.get_metadata_code(message.chat.id)
         if metadata:
 
-            await ms.reply_text("I Found Your Metadata🔥\n\n__Please Wait...__\n`Adding Metadata ⚡...`")
+            await ms.edit("I Found Your Metadata🔥\n\n__Please Wait...__\n`Adding Metadata ⚡...`")
             cmd = f"""ffmpeg -i "{path}" {metadata} "{metadata_path}" """
 
             process = await asyncio.create_subprocess_shell(
@@ -239,9 +239,9 @@ async def auto_rename_files(client, message):
                     return await ms.edit(str(er) + "\n\n**Error**")
             except BaseException:
                 pass
-        await ms.reply_text("**Metadata Added To The File Successfully ✅**\n\n__**Please Wait...**__\n\n`😈Trying To Downloading`")
+        await ms.edit("**Metadata Added To The File Successfully ✅**\n\n__**Please Wait...**__\n\n`😈Trying To Downloading`")
     else:
-        await ms.reply_text("`😈Trying To Downloading`") 
+        await ms.edit("`😈Trying To Downloading`") 
 
     duration = 0
     try:
@@ -265,7 +265,7 @@ async def auto_rename_files(client, message):
          except Exception as e:
              return await ms.reply_text(text=f"Your Caption Error Except Keyword Argument: ({e})")             
     else:
-         caption = f"**{new_filename}**"
+         caption = f"**{new_file_name}**"
  
     if (media.thumbs or c_thumb):
          if c_thumb:
@@ -280,7 +280,7 @@ async def auto_rename_files(client, message):
                  print(e)  
 
 
-    await ms.reply_text("`Trying To Uploading💯`")
+    await ms.edit("`Trying To Uploading💯`")
     type = message.data.split("_")[1]
     try:
         if type == "document":
