@@ -321,8 +321,7 @@ async def auto_rename_files(client, message):
         if path:
             os.remove(path)
         return await ms.edit(f"**Error :** `{e}`")    
- 
-    await ms.delete() 
+
     if ph_path:
         os.remove(ph_path)
     if file_path:
