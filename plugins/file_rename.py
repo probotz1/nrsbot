@@ -247,11 +247,11 @@ async def auto_rename_files(client, message):
             metadata = extractMetadata(createParser(file_path))
             if metadata.has("duration"):
                 duration = metadata.get('duration').seconds
-        except Exception as e:
-            print(f"Error getting duration: {e}")
+        except:
+            pass
 
-        upload_msg = await download_msg.edit("Trying To Uploading.....")
         ph_path = None
+        user_id = int(message.chat.id) 
         c_caption = await AshutoshGoswami24.get_caption(message.chat.id)
         c_thumb = await AshutoshGoswami24.get_thumbnail(message.chat.id)
 
@@ -269,7 +269,8 @@ async def auto_rename_files(client, message):
             img.resize((320, 320))
             img.save(ph_path, "JPEG")    
         
-
+        await ms.edit("`Trying To Uploading💯`")
+        type = message.data.split("_")[1]
         try:
             type = media_type  # Use 'media_type' variable instead
             if type == "document":
