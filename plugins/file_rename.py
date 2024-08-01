@@ -151,44 +151,53 @@ async def auto_rename_files(client, message):
     if message.document:
         file_id = message.document.file_id
         file_name = message.document.file_name
-        media_type = media_preference or "document"
+        media_type = media_preference or "document"  # Use preferred media type or default to document
     elif message.video:
         file_id = message.video.file_id
         file_name = f"{message.video.file_name}.mp4"
-        media_type = media_preference or "video"
+        media_type = media_preference or "video"  # Use preferred media type or default to video
     elif message.audio:
         file_id = message.audio.file_id
         file_name = f"{message.audio.file_name}.mp3"
-        media_type = media_preference or "audio"
+        media_type = media_preference or "audio"  # Use preferred media type or default to audio
     else:
         return await message.reply_text("Unsupported File Type")
 
     print(f"Original File Name: {file_name}")
     
+    
+
+# Check whether the file is already being renamed or has been renamed recently
     if file_id in renaming_operations:
         elapsed_time = (datetime.now() - renaming_operations[file_id]).seconds
         if elapsed_time < 10:
             print("File is being ignored as it is currently being renamed or was renamed recently.")
-            return
+            return  # Exit the handler if the file is being ignored
 
+    # Mark the file as currently being renamed
     renaming_operations[file_id] = datetime.now()
 
+    # Extract episode number and qualities
     episode_number = extract_episode_number(file_name)
+    
     print(f"Extracted Episode Number: {episode_number}")
-
+    
     if episode_number:
         placeholders = ["episode", "Episode", "EPISODE", "{episode}"]
         for placeholder in placeholders:
             format_template = format_template.replace(placeholder, str(episode_number), 1)
-        
+            
+        # Add extracted qualities to the format template
         quality_placeholders = ["quality", "Quality", "QUALITY", "{quality}"]
         for quality_placeholder in quality_placeholders:
             if quality_placeholder in format_template:
                 extracted_qualities = extract_quality(file_name)
                 if extracted_qualities == "Unknown":
                     await message.reply_text("I Was Not Able To Extract The Quality Properly. Renaming As 'Unknown'...")
+                    # Mark the file as ignored
                     del renaming_operations[file_id]
-                    return
+                    return  # Exit the handler if quality extraction fails
+                
                 format_template = format_template.replace(quality_placeholder, "".join(extracted_qualities))   
                 
         if not os.path.isdir("Metadata"):
@@ -202,48 +211,48 @@ async def auto_rename_files(client, message):
         download_msg = await message.reply_text(text="Trying To Download.....")
         try:
             path = await client.download_media(message=file, file_name=file_path, progress=progress_for_pyrogram, progress_args=("Download Started....", download_msg, time.time()))
-            print(f"Downloaded file path: {path}")
-            print(f"File size: {os.path.getsize(path)} B")
         except Exception as e:
+            # Mark the file as ignored
             del renaming_operations[file_id]
-            return await download_msg.edit(e)
+            return await download_msg.edit(e)  
 
-        _bool_metadata = await AshutoshGoswami24.get_metadata(message.chat.id)
+        _bool_metadata = await AshutoshGoswami24.get_metadata(message.chat.id)  
+    
         if (_bool_metadata):
             metadata_path = f"Metadata/{new_file_name}"
             metadata = await AshutoshGoswami24.get_metadata_code(message.chat.id)
             if metadata:
-                await download_msg.edit("I Found Your Metadata🔥\n\n__Please Wait...__\n`Adding Metadata ⚡...`")
+
+                await download_msg.edit("I Found Your MetadataðŸ”¥\n\n__Please Wait...__\n`Adding Metadata âš¡...`")
                 cmd = f"""ffmpeg -i "{path}" {metadata} "{metadata_path}" """
-                print(f"Running ffmpeg command: {cmd}")
 
                 process = await asyncio.create_subprocess_shell(
                     cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
                 )
+
                 stdout, stderr = await process.communicate()
                 er = stderr.decode()
+
                 try:
                     if er:
                         return await download_msg.edit(str(er) + "\n\n**Error**")
                 except BaseException:
                     pass
-            await download_msg.edit("**Metadata Added To The File Successfully ✅**\n\n__**Please Wait...**__\n\n`😈Trying To Downloading`")
+            await download_msg.edit("**Metadata Added To The File Successfully âœ…**\n\n__**Please Wait...**__\n\n`ðŸ˜ˆTrying To Downloading`")
         else:
-            await download_msg.edit("`😈Trying To Downloading`")
+            await download_msg.edit("`ðŸ˜ˆTrying To Downloading`") 
 
         duration = 0
         try:
             parser = createParser(file_path)
             metadata = extractMetadata(parser)
             if metadata.has("duration"):
-                duration = metadata.get('duration').seconds
-            parser.close()
+               duration = metadata.get('duration').seconds
+            parser.close()   
         except:
             pass
-
-        upload_msg = await download_msg.edit("Trying To Uploading⚡.....")
-        ph_path = None
-        user_id = int(message.chat.id)
+        upload_msg = await download_msg.edit("Trying To Uploadingâš¡.....")
+        user_id = int(message.chat.id) 
         c_caption = await AshutoshGoswami24.get_caption(message.chat.id)
         c_thumb = await AshutoshGoswami24.get_thumbnail(message.chat.id)
 
@@ -259,10 +268,10 @@ async def auto_rename_files(client, message):
             Image.open(ph_path).convert("RGB").save(ph_path)
             img = Image.open(ph_path)
             img.resize((320, 320))
-            img.save(ph_path, "JPEG")
-
+            img.save(ph_path, "JPEG")    
+        
         try:
-            type = media_type
+            type = media_type  # Use 'media_type' variable instead
             if type == "document":
                 await client.send_document(
                     message.chat.id,
@@ -300,7 +309,7 @@ async def auto_rename_files(client, message):
                 os.remove(metadata_path)
             return await upload_msg.edit(f"Error: {e}")
 
-        await download_msg.delete()
+        await download_msg.delete() 
         if ph_path:
             os.remove(ph_path)
         if file_path:
@@ -308,4 +317,13 @@ async def auto_rename_files(client, message):
         if metadata_path:
             os.remove(metadata_path)
 
+# Remove the entry from renaming_operations after successful renaming
         del renaming_operations[file_id]
+
+
+
+
+# PandaWep
+# Don't Remove Credit ðŸ¥º
+# Telegram Channel @PandaWep
+# Developer https://github.com/PandaWep
