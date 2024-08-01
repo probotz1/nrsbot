@@ -269,7 +269,7 @@ async def auto_rename_files(client, message):
             img.resize((320, 320))
             img.save(ph_path, "JPEG")    
         
-        await ms.edit("`Trying To Uploading💯`")
+        upload_msg = await download_msg.edit("Trying To Uploading.....")
         type = message.data.split("_")[1]
         try:
             type = media_type  # Use 'media_type' variable instead
