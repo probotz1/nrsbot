@@ -251,7 +251,7 @@ async def auto_rename_files(client, message):
             parser.close()   
         except:
             pass
-
+        upload_msg = await download_msg.edit("Trying To Uploading⚡.....")
         ph_path = None
         user_id = int(message.chat.id) 
         c_caption = await AshutoshGoswami24.get_caption(message.chat.id)
@@ -271,7 +271,6 @@ async def auto_rename_files(client, message):
             img.resize((320, 320))
             img.save(ph_path, "JPEG")    
         
-        upload_msg = await download_msg.edit("Trying To Uploading.....")
         try:
             type = media_type  # Use 'media_type' variable instead
             if type == "document":
@@ -309,8 +308,6 @@ async def auto_rename_files(client, message):
                 os.remove(ph_path)
             if metadata_path:
                 os.remove(metadata_path)
-            if path:
-                os.remove(path)
             return await upload_msg.edit(f"Error: {e}")
 
         await download_msg.delete() 
