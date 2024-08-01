@@ -244,9 +244,11 @@ async def auto_rename_files(client, message):
 
         duration = 0
         try:
-            metadata = extractMetadata(createParser(file_path))
+            parser = createParser(file_path)
+            metadata = extractMetadata(parser)
             if metadata.has("duration"):
-                duration = metadata.get('duration').seconds
+               duration = metadata.get('duration').seconds
+            parser.close()   
         except:
             pass
 
@@ -307,13 +309,15 @@ async def auto_rename_files(client, message):
                 os.remove(ph_path)
             if metadata_path:
                 os.remove(metadata_path)
-            # Mark the file as ignored
+            if path:
+                os.remove(path)
             return await upload_msg.edit(f"Error: {e}")
 
         await download_msg.delete() 
-        os.remove(file_path)
         if ph_path:
             os.remove(ph_path)
+        if file_path:
+            os.remove(file_path)
         if metadata_path:
             os.remove(metadata_path)
 
