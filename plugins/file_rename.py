@@ -244,14 +244,14 @@ async def auto_rename_files(client, message):
 
         duration = 0
         try:
-            parser = createParser(file_path)
-            metadata = extractMetadata(parser)
+            metadata = extractMetadata(createParser(file_path))
             if metadata.has("duration"):
-               duration = metadata.get('duration').seconds
-            parser.close()   
-        except:
-            pass
+                duration = metadata.get('duration').seconds
+        except Exception as e:
+            print(f"Error getting duration: {e}")
+            
         upload_msg = await download_msg.edit("Trying To Uploading⚡.....")
+        ph_path = None 
         c_caption = await AshutoshGoswami24.get_caption(message.chat.id)
         c_thumb = await AshutoshGoswami24.get_thumbnail(message.chat.id)
 
@@ -268,13 +268,14 @@ async def auto_rename_files(client, message):
             img = Image.open(ph_path)
             img.resize((320, 320))
             img.save(ph_path, "JPEG")    
+
         
         try:
             type = media_type  # Use 'media_type' variable instead
             if type == "document":
                 await client.send_document(
                     message.chat.id,
-                    document=metadata_path if _bool_metadata else file_path,
+                    document=metadata_path if _bool_metadata else _bool_metadata,
                     thumb=ph_path,
                     caption=caption,
                     progress=progress_for_pyrogram,
@@ -283,7 +284,7 @@ async def auto_rename_files(client, message):
             elif type == "video":
                 await client.send_video(
                     message.chat.id,
-                    video=metadata_path if _bool_metadata else file_path,
+                    video=metadata_path if _bool_metadata else _bool_metadata,
                     caption=caption,
                     thumb=ph_path,
                     duration=duration,
@@ -293,7 +294,7 @@ async def auto_rename_files(client, message):
             elif type == "audio":
                 await client.send_audio(
                     message.chat.id,
-                    audio=metadata_path if _bool_metadata else file_path,
+                    audio=metadata_path if _bool_metadata else _bool_metadata,
                     caption=caption,
                     thumb=ph_path,
                     duration=duration,
