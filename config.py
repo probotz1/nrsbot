@@ -16,8 +16,8 @@ class Config(object):
     START_PIC   = os.environ.get("START_PIC", "")
     ADMIN       = [int(admin) if id_pattern.search(admin) else admin for admin in os.environ.get('ADMIN', '6676762606').split()]
     # -- FORCE_SUB_CHANNELS = ["BotzPW","AshuSupport","AshutoshGoswami24"] -- # 
-    FORCE_SUB_CHANNELS = os.environ.get('FORCE_SUB_CHANNELS', '0').split(',')
-    LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "0"))
+    FORCE_SUB_CHANNELS = os.environ.get('FORCE_SUB_CHANNELS', 'TheStrongestMagicianintheTamil').split(',')
+    LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1002222905196"))
     PORT = int(os.environ.get("PORT", "8030"))
     
     # wes response configuration     
